@@ -26,7 +26,7 @@ jobs:
         with:
           host: ${{ secrets.AZURE_VM_IP }}
           username: azureuser
-          key: ${{ secrets.AZURE_SSH_KEY }}
+          key: ${{ secrets.VM_SSH_KEY }}
           script: |
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/devops-app:latest
             docker stop devops-app || true
