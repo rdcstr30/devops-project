@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Version 3 - DevOps is awesome! --RD"
+    return "Hello from DevOps CI/CD Pipeline v2! --RD"
 
 
 if __name__ == "__main__":
