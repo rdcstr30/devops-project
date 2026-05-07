@@ -5,7 +5,6 @@ on:
     branches: [ main ]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
 
@@ -27,14 +26,15 @@ jobs:
     needs: build
 
     steps:
-      - name: Deploy to Azure VM
+      - name: Deploy to K3s on Azure VM
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.AZURE_VM_IP }}
           username: azureuser
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/devops-app:latest
-            docker stop devops-app || true
-            docker rm devops-app || true
-            docker run -d -p 5000:5000 --name devops-app ${{ secrets.DOCKERHUB_USERNAME }}/devops-app:latest
+            cd /home/azureuser
+            kubectl apply -f k8s/
+            kubectl rollout restart deployment/devops-app
+            kubectl rollout status deployment/devops-app
+            kubectl get pods
