@@ -29,7 +29,7 @@ jobs:
       - name: Deploy to K3s on Azure VM
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.AZURE_VM_IP }}
+          host: ${{ secrets.AZURE_VM2_IP }}
           username: azureuser
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
