@@ -2,23 +2,28 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: devops-app
+
 spec:
   replicas: 2
+
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 0
       maxSurge: 1
+
   selector:
     matchLabels:
       app: devops-app
-template:
-  metadata:
-    labels:
-      app: devops-app
-  spec:
-    containers:
-    - name: devops-app
-    image: rdcstr30/devops-app:latest
-    ports:
-    - containerPort: 5000
+
+  template:
+    metadata:
+      labels:
+        app: devops-app
+    spec:
+      containers:
+      - name: devops-app
+        image: rdcstr30/devops-app:latest
+
+        ports:
+        - containerPort: 5000
