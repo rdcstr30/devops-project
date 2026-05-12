@@ -26,6 +26,18 @@ jobs:
     needs: build
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy Kubernetes manifest to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AZURE_VM2_IP }}
+          username: azureuser
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: "k8s"
+          target: "/home/azureuser"
+
       - name: Deploy to K3s on Azure VM
         uses: appleboy/ssh-action@v1.0.3
         with:
