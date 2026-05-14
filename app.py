@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    app_secret = os.gatenv("APP_SECRET", "No Secret Found")
+    app_secret = os.getenv("APP_SECRET", "No Secret Found")
 
     return f"Hello from DevOps CI/CD Pipeline v2! Secret: {app_secret}"
 
