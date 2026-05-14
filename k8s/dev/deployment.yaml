@@ -28,7 +28,7 @@ spec:
 
         env:
         - name: APP_SECRET
-          valueForm:
+          valueFrom:
             secretKeyRef:
               name: app-secret
               key: APP_SECRET
