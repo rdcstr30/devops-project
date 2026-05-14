@@ -46,7 +46,7 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             cd /home/azureuser
-            kubectl apply -f k8s/
-            kubectl rollout restart deployment/devops-app
-            kubectl rollout status deployment/devops-app
-            kubectl get pods
+            kubectl apply -f k8s/dev
+            kubectl rollout restart deployment/devops-app -n dev
+            kubectl rollout status deployment/devops-app -n dev
+            kubectl get pods -n dev
