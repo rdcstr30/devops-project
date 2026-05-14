@@ -50,3 +50,34 @@ jobs:
             kubectl rollout restart deployment/devops-app -n dev
             kubectl rollout status deployment/devops-app -n dev
             kubectl get pods -n dev
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy Kubernetes manifests to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AZURE_VM2_IP }}
+          username: azureuser
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: "k8s"
+          target: "/home/azureuser"
+
+      - name: Deploy to staging
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_VM2_IP }}
+          username: azureuser
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            cd /home/azureuser
+            kubectl apply -f k8s/staging/
+            kubectl rollout restart deployment/devops-app -n staging
+            kubectl rollout status deployment/devops-app -n staging
+            kubectl get pods -n staging
