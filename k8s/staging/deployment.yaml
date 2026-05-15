@@ -26,5 +26,12 @@ spec:
       - name: devops-app
         image: rdcstr30/devops-app:latest
 
+        env:
+        - name: APP_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: APP_SECRET
+
         ports:
         - containerPort: 5000
