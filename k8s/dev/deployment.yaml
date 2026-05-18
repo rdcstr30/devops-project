@@ -38,7 +38,7 @@ spec:
 
         readinessProbe:
           httpGet:
-            path: /
+            path: /bad-health
             port: 5000
           initialDelaySeconds: 5
           periodSeconds: 5
