@@ -3,7 +3,9 @@ kind: Deployment
 metadata:
   name: devops-app
   namespace: dev
-  managed-by: argocd
+  labels:
+    app: devops-app
+    managed-by: argocd
 
 spec:
   replicas: 3
