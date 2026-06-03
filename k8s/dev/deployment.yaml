@@ -38,6 +38,18 @@ spec:
               name: app-secret
               key: APP_SECRET
 
+        - name: APP_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: devops-app-config
+              key: APP_ENV
+
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: devops-app-config
+              key: LOG_LEVEL
+
         ports:
         - containerPort: 5000
 
