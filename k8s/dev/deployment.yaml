@@ -50,6 +50,10 @@ spec:
               name: devops-app-config
               key: LOG_LEVEL
 
+        volumeMounts:
+        - name: app-storage
+          mountPath: /data
+
         ports:
         - containerPort: 5000
 
@@ -74,3 +78,8 @@ spec:
             port: 5000
           initialDelaySeconds: 15
           periodSeconds: 10
+
+      volumes:
+      - name: app-storage
+        persistentVolumeClaim:
+          claimName: devops-app-pvc
