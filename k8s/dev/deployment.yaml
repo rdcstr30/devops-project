@@ -48,7 +48,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: devops-app-config
-              key: LOG_LEVEL_MISSING
+              key: LOG_LEVEL
 
         volumeMounts:
         - name: app-storage
