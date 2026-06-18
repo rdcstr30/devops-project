@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
       - name: devops-app
-        image: rdcstr30/devops-app:broken
+        image: rdcstr30/devops-app:latest
 
         env:
         - name: APP_SECRET
