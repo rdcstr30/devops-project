@@ -25,6 +25,11 @@ spec:
       labels:
         app: devops-app
         managed-by: argocd
+    spec:
+      nodeSelector:
+        node-role: app
+      containers:
+      - name: devops-app
 
     spec:
       containers:
