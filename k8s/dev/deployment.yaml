@@ -27,7 +27,7 @@ spec:
         managed-by: argocd
     spec:
       nodeSelector:
-        node-role: app
+        node-role: database
       containers:
       - name: devops-app
 
