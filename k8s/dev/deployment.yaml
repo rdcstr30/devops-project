@@ -27,7 +27,7 @@ spec:
         managed-by: argocd
     spec:
       nodeSelector:
-        node-role: database
+        node-role: app
       containers:
       - name: devops-app
         image: rdcstr30/devops-app:latest
