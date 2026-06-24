@@ -30,12 +30,8 @@ spec:
         node-role: database
       containers:
       - name: devops-app
-
-    spec:
-      containers:
-      - name: devops-app
         image: rdcstr30/devops-app:latest
-
+            
         env:
         - name: APP_SECRET
           valueFrom:
