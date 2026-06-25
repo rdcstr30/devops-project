@@ -40,6 +40,13 @@ spec:
                   values:
                   - devops-app
               topologyKey: kubernetes.io/hostname
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topokogyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: devops-app
 
       containers:
       - name: devops-app
