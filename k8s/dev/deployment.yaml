@@ -28,6 +28,19 @@ spec:
     spec:
       nodeSelector:
         node-role: app
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - devops-app
+              topologyKey: kubernetes.io/hostname
+
       containers:
       - name: devops-app
         image: rdcstr30/devops-app:latest
