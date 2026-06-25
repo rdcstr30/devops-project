@@ -28,11 +28,6 @@ spec:
     spec:
       nodeSelector:
         node-role: app
-      tolerations:
-      - key: "dedicated"
-        operator: "Equal"
-        value: "control-plane"
-        effect: "NoSchedule"
       containers:
       - name: devops-app
         image: rdcstr30/devops-app:latest
