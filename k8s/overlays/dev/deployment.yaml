@@ -50,7 +50,7 @@ spec:
 
       containers:
       - name: devops-app
-        image: rdcstr30/devops-app:latest
+        image: 
             
         env:
         - name: APP_SECRET
