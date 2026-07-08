@@ -234,7 +234,7 @@ resource "azurerm_linux_virtual_machine" "worker1" {
   name                = "worker1"
   resource_group_name = var.resource_group_name
   location            = var.location
-  size                = "Standard_B2s"
+  size                = "Standard_D2ds_v6"
   admin_username      = var.admin_username
 
   custom_data = base64encode(templatefile("${path.module}/cloud-init-worker.yaml", {
@@ -297,7 +297,7 @@ resource "azurerm_linux_virtual_machine" "worker2" {
   name                = "worker2"
   resource_group_name = var.resource_group_name
   location            = var.location
-  size                = "Standard_B2s"
+  size                = "Standard_D2ds_v6"
   admin_username      = var.admin_username
 
   custom_data = base64encode(templatefile("${path.module}/cloud-init-worker.yaml", {

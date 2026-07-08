@@ -7,7 +7,7 @@ variable "location" {
 variable "resource_group_name" {
   description = "Resource group name"
   type        = string
-  default     = "devops-terraform-rg"
+  default     = "DEVOPS-TERRAFORM-RG"
 }
 
 variable "admin_username" {
