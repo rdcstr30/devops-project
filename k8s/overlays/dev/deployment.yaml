@@ -6,20 +6,16 @@ metadata:
   labels:
     app: devops-app
     managed-by: argocd
-
 spec:
-  replicas: 3
-
+  replicas: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 0
       maxSurge: 1
-
   selector:
     matchLabels:
       app: devops-app
-
   template:
     metadata:
       labels:
@@ -47,37 +43,42 @@ spec:
         labelSelector:
           matchLabels:
             app: devops-app
-
       containers:
       - name: devops-app
-        image: 
-            
+        image: rdcstr30/devops-app:latest
         env:
-        - name: APP_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: app-secret
-              key: APP_SECRET
-
         - name: APP_ENV
           valueFrom:
             configMapKeyRef:
               name: devops-app-config
               key: APP_ENV
-
         - name: LOG_LEVEL
           valueFrom:
             configMapKeyRef:
               name: devops-app-config
               key: LOG_LEVEL
-
-        volumeMounts:
-        - name: app-storage
-          mountPath: /data
-
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: devops-app-config
+              key: DB_HOST
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: devops-app-config
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: devops-app-config
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: devops-app-secret
+              key: DB_PASSWORD
         ports:
         - containerPort: 5000
-
         resources:
           requests:
             cpu: "100m"
@@ -85,22 +86,15 @@ spec:
           limits:
             cpu: "500m"
             memory: "256Mi"
-
         readinessProbe:
           httpGet:
-            path: /
+            path: /health
             port: 5000
-          initialDelaySeconds: 5
+          initialDelaySeconds: 10
           periodSeconds: 5
-
         livenessProbe:
           httpGet:
-            path: /
+            path: /health
             port: 5000
-          initialDelaySeconds: 15
+          initialDelaySeconds: 20
           periodSeconds: 10
-
-      volumes:
-      - name: app-storage
-        persistentVolumeClaim:
-          claimName: devops-app-pvc

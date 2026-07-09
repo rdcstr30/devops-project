@@ -3,7 +3,9 @@ kind: ConfigMap
 metadata:
   name: devops-app-config
   namespace: dev
-
 data:
   APP_ENV: "dev"
   LOG_LEVEL: "debug"
+  DB_HOST: "postgres-service"
+  DB_NAME: "expenses"
+  DB_USER: "postgres"
