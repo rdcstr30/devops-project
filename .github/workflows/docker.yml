@@ -20,7 +20,7 @@ jobs:
 
       - name: Set image tag
         id: meta
-        run: echo "sha_tag=${{ secrets.DOCKERHUB_USERNAME }}/devops-app:${{ github.sha }}" >> $GITHUB_OUTPUT
+        run: echo "image_tag=${{ secrets.DOCKERHUB_USERNAME }}/devops-app:${{ github.sha }}" >> $GITHUB_OUTPUT
 
       - name: Login to DockerHub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
@@ -34,7 +34,7 @@ jobs:
 
       - name: Push image
         run: |
-          docker push ${{ steps.meta.outputs.sha_tag }}
+          image_tag: ${{ steps.meta.outputs.image_tag }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-app:latest
 
   update-manifests:
