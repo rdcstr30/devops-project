@@ -28,13 +28,13 @@ jobs:
       - name: Build image
         run: |
           docker build \
-            -t ${{ steps.meta.outputs.sha_tag }} \
+            -t ${{ steps.meta.outputs.image_tag }} \
             -t ${{ secrets.DOCKERHUB_USERNAME }}/devops-app:latest \
             app/api/
 
       - name: Push image
         run: |
-          image_tag: ${{ steps.meta.outputs.image_tag }}
+          docker push ${{ steps.meta.outputs.image_tag }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-app:latest
 
   update-manifests:
