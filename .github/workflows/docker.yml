@@ -49,9 +49,8 @@ jobs:
 
       - name: Update image tag in dev manifest
         run: |
-          IMAGE_TAG="${{ needs.build-and-push.outputs.image_tag }}"
+          IMAGE_TAG="${{ secrets.DOCKERHUB_USERNAME }}/devops-app:${{ github.sha }}"
           echo "DEBUG: IMAGE_TAG='$IMAGE_TAG'"
-          echo "DEBUG: raw output='${{ needs.build-and-push.outputs.image_tag }}'"
           if [ -z "$IMAGE_TAG" ]; then
             echo "ERROR: image_tag is empty, aborting manifest update"
             exit 1
