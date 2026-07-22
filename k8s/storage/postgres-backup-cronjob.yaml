@@ -19,9 +19,7 @@ spec:
             - -c
             - |
               echo "Starting backup at $(date)"
-              pg_dump -h postgres-service -U postgres -d expenses
-\
-                > /backup/expenses-$(date +%Y%m%d-%H%M%S).sql
+              pg_dump -h postgres-service -U postgres -d expenses > /backup/expenses-$(date +%Y%m%d-%H%M%S).sql
               echo "Backup complete: $(ls -lh /backup/)"
             env:
             - name: PGPASSWORD
