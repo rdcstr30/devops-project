@@ -45,7 +45,7 @@ spec:
             app: devops-app
       containers:
       - name: devops-app
-        image: rdcstr30/devops-app:d2c3f95886e08a1dea5c1aca6ab5397676ae149b
+        image: rdcstr30/devops-app:349d1635b5653cd414b2a30afd735ad223a81b0b
         env:
         - name: APP_ENV
           valueFrom:
