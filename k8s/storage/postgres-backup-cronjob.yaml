@@ -19,15 +19,16 @@ spec:
             - -c
             - |
               echo "Starting backup at $(date)"
-              pg_dump -h postgres-service -U postgres -d expensedb \
-                > /backup/expensedb-$(date +%Y%m%d-%H%M%S).sql
+              pg_dump -h postgres-service -U postgres -d expenses
+\
+                > /backup/expenses-$(date +%Y%m%d-%H%M%S).sql
               echo "Backup complete: $(ls -lh /backup/)"
             env:
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_PASSWORD
+                  name: devops-app-secret
+                  key: DB_PASSWORD
             volumeMounts:
             - name: backup-vol
               mountPath: /backup
