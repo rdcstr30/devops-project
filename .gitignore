@@ -7,3 +7,6 @@ terraform/*.tfstate.*
 
 # Terraform lock (optional)
 # terraform/.terraform.lock.hcl
+terraform/terraform.tfvars
+terraform/.terraform/
+terraform/.terraform.tfstate*
