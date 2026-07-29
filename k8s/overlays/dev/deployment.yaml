@@ -22,6 +22,8 @@ spec:
         app: devops-app
         managed-by: argocd
     spec:
+      serviceAccountName: devops-app-sa
+      automountServiceAccountToken: false
       nodeSelector:
         node-role: app
       affinity:
