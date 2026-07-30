@@ -3,6 +3,9 @@ name: CI
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'app/**'
+      - 'Dockerfile'
   workflow_dispatch:
 
 permissions:
