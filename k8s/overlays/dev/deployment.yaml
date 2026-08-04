@@ -24,6 +24,10 @@ spec:
     spec:
       serviceAccountName: devops-app-sa
       automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       nodeSelector:
         node-role: app
       affinity:
@@ -48,6 +52,10 @@ spec:
       containers:
       - name: devops-app
         image: rdcstr30/devops-app:98df3044fc1e6edd77d0d4256d555c9f89c1e712
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
         env:
         - name: APP_ENV
           valueFrom:
