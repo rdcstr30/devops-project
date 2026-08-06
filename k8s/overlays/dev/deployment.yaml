@@ -7,7 +7,6 @@ metadata:
     app: devops-app
     managed-by: argocd
 spec:
-  replicas: 3
   strategy:
     type: RollingUpdate
     rollingUpdate:
