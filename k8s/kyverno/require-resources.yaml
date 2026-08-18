@@ -1,0 +1,32 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-resource-requests
+  annotations:
+    policies.kyverno.io/title: Require Resource Requests
+    policies.kyverno.io/description: >-
+      All containers in Deployments must have CPU and memory requests set.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: check-container-resources
+      match:
+        any:
+        - resources:
+            kinds:
+              - Deployment
+            namespaces:
+              - dev
+      validate:
+        message: "All containers must have CPU and memory requests set."
+        pattern:
+          spec:
+            template:
+              spec:
+                containers:
+                  - name: "*"
+                    resources:
+                      requests:
+                        memory: "?*"
+                        cpu: "?*"
