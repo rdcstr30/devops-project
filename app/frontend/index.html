@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense Tracker</title>
+  <style>
+    :root {
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+      --transition: 140ms ease;
+      --bg: #f6f7f9; --surface: #ffffff; --surface-2: #f0f1f4;
+      --border: #e2e4ea; --text: #111318; --text-2: #5a5f6e; --text-3: #9499a8;
+      --accent: #2563eb; --accent-light: #dbeafe;
+      --green: #16a34a; --green-light: #dcfce7;
+      --red: #dc2626; --red-light: #fee2e2;
+      --amber: #d97706; --amber-light: #fef3c7;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1117; --surface: #181c27; --surface-2: #1e2333;
+        --border: #2a2f3f; --text: #e8eaf0; --text-2: #9499a8; --text-3: #5a5f6e;
+        --accent: #3b82f6; --accent-light: #1e3a5f;
+        --green: #22c55e; --green-light: #14291f;
+        --red: #f87171; --red-light: #2d1515;
+        --amber: #fbbf24; --amber-light: #2d2008;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+        --shadow-md: 0 4px 12px rgba(0,0,0,.4);
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); font-size: 14px; line-height: 1.6; background: var(--bg); color: var(--text); min-height: 100vh; }
+    button { font-family: inherit; cursor: pointer; border: none; outline: none; transition: opacity var(--transition), background var(--transition), transform var(--transition); }
+    button:active { transform: scale(.98); }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    input, select, textarea { font-family: inherit; font-size: 14px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); padding: 8px 10px; width: 100%; transition: border-color var(--transition); outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 72px; }
+
+    .shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+    .sidebar { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 0; position: sticky; top: 0; height: 100vh; }
+    .sidebar-brand { padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+    .sidebar-brand .wordmark { font-family: var(--font-mono); font-size: 13px; font-weight: 700; letter-spacing: .04em; color: var(--accent); text-transform: uppercase; }
+    .sidebar-brand .tagline { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: var(--text-2); cursor: pointer; transition: background var(--transition), color var(--transition); font-size: 13px; font-weight: 500; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:active { transform: none; }
+    .nav-item:hover { background: var(--surface-2); color: var(--text); }
+    .nav-item.active { background: var(--accent-light); color: var(--accent); }
+    .nav-icon { font-size: 15px; width: 20px; text-align: center; }
+
+    .main { display: flex; flex-direction: column; overflow: auto; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+    .topbar-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .topbar-subtitle { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+    .content { padding: 28px; flex: 1; }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+    .card-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .card-title { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .08em; }
+    .card-body { padding: 20px; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); }
+    .stat-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+    .stat-value { font-family: var(--font-mono); font-size: 28px; font-weight: 700; color: var(--text); line-height: 1; }
+    .stat-value.accent { color: var(--accent); }
+    .stat-value.amber  { color: var(--amber); }
+    .stat-value.green  { color: var(--green); }
+    .stat-sub { font-size: 11px; color: var(--text-3); margin-top: 6px; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .07em; padding: 10px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-2); }
+    .td-mono { font-family: var(--font-mono); font-size: 12px; color: var(--text-2); }
+    .td-amount { font-family: var(--font-mono); font-weight: 600; }
+
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+    .badge-pending  { background: var(--amber-light); color: var(--amber); }
+    .badge-approved { background: var(--green-light); color: var(--green); }
+    .badge-rejected { background: var(--red-light);   color: var(--red);  }
+
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; white-space: nowrap; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { opacity: .88; }
+    .btn-ghost { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
+    .btn-ghost:hover { color: var(--text); }
+    .btn-approve { background: var(--green-light); color: var(--green); font-size: 12px; padding: 5px 10px; }
+    .btn-approve:hover { opacity: .8; }
+    .btn-reject  { background: var(--red-light);   color: var(--red);   font-size: 12px; padding: 5px 10px; }
+    .btn-reject:hover  { opacity: .8; }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    .actions-cell { display: flex; gap: 6px; align-items: center; }
+
+    .filter-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .filter-btn { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); cursor: pointer; transition: all var(--transition); }
+    .filter-btn:active { transform: scale(.97); }
+    .filter-btn.active { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-label { font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .05em; }
+    .form-hint { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+    .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 100; }
+    .toast { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; box-shadow: var(--shadow-md); font-size: 13px; min-width: 240px; display: flex; align-items: center; gap: 10px; animation: slideIn .2s ease; }
+    .toast.success { border-left: 3px solid var(--green); }
+    .toast.error   { border-left: 3px solid var(--red); }
+    @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    .empty { text-align: center; padding: 48px 24px; color: var(--text-3); }
+    .empty-icon  { font-size: 32px; margin-bottom: 12px; }
+    .empty-label { font-size: 14px; font-weight: 500; color: var(--text-2); }
+    .empty-sub   { font-size: 12px; margin-top: 4px; }
+
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .activity-list { list-style: none; }
+    .activity-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-meta { font-size: 12px; color: var(--text-3); }
+    .activity-desc { font-size: 13px; color: var(--text); font-weight: 500; }
+
+    @media (max-width: 700px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; flex-direction: row; align-items: center; padding: 0; border-right: none; border-bottom: 1px solid var(--border); overflow-x: auto; }
+      .sidebar-brand { display: none; }
+      .nav-item { padding: 12px 14px; flex-direction: column; gap: 2px; font-size: 11px; }
+      .nav-icon { font-size: 18px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .content { padding: 16px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="wordmark">ExpenseOps</div>
+      <div class="tagline">Expense management</div>
+    </div>
+    <button class="nav-item active" onclick="showScreen('dashboard')" id="nav-dashboard">
+      <span class="nav-icon">▦</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="showScreen('expenses')" id="nav-expenses">
+      <span class="nav-icon">≡</span> All Expenses
+    </button>
+    <button class="nav-item" onclick="showScreen('submit')" id="nav-submit">
+      <span class="nav-icon">+</span> Submit Expense
+    </button>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-subtitle" id="topbar-subtitle">Overview of all expenses</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="refreshCurrent()">&#8635; Refresh</button>
+    </div>
+
+    <div class="content">
+
+      <!-- Dashboard -->
+      <div class="screen active" id="screen-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total submitted</div>
+            <div class="stat-value accent" id="stat-total">—</div>
+            <div class="stat-sub">All time</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pending review</div>
+            <div class="stat-value amber" id="stat-pending">—</div>
+            <div class="stat-sub">Needs action</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Approved</div>
+            <div class="stat-value green" id="stat-approved-count">—</div>
+            <div class="stat-sub">Expenses approved</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Approved total</div>
+            <div class="stat-value green" id="stat-approved-amount">—</div>
+            <div class="stat-sub">AED</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Activity</span>
+            <button class="btn btn-ghost btn-sm" onclick="showScreen('expenses')">View all &rarr;</button>
+          </div>
+          <div id="dashboard-recent" style="padding:0 20px"></div>
+        </div>
+      </div>
+
+      <!-- All Expenses -->
+      <div class="screen" id="screen-expenses">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Expenses</span>
+            <div class="filter-bar">
+              <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+              <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
+              <button class="filter-btn" onclick="setFilter('approved',this)">Approved</button>
+              <button class="filter-btn" onclick="setFilter('rejected',this)">Rejected</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>Submitter</th><th>Category</th>
+                  <th>Amount</th><th>Description</th>
+                  <th>Status</th><th>Date</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="expenses-tbody">
+                <tr><td colspan="8"><div class="empty"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="screen" id="screen-submit">
+        <div class="card" style="max-width:560px">
+          <div class="card-header">
+            <span class="card-title">New Expense</span>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="f-submitter">Your name</label>
+                <input type="text" id="f-submitter" placeholder="e.g. Ahmed Al Rashidi" autocomplete="name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="f-amount">Amount (AED)</label>
+                <input type="number" id="f-amount" placeholder="0.00" min="0.01" step="0.01" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="f-category">Category</label>
+                <select id="f-category">
+                  <option value="">— Select —</option>
+                  <option>Travel</option><option>Meals</option>
+                  <option>Accommodation</option><option>Software</option>
+                  <option>Hardware</option><option>Training</option>
+                  <option>Office Supplies</option><option>Other</option>
+                </select>
+              </div>
+              <div class="form-group full">
+                <label class="form-label" for="f-description">Description</label>
+                <textarea id="f-description" placeholder="Provide enough detail for the approver…"></textarea>
+                <div class="form-hint">Be specific — vague descriptions get rejected.</div>
+              </div>
+              <div class="form-group full" style="margin-top:4px">
+                <button class="btn btn-primary" id="submit-btn" onclick="submitExpense()">Submit expense</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+  // ── Config ──────────────────────────────────────────────────────────
+  // Empty = same origin (correct for ingress deployment).
+  // Set to 'http://your-ip' only for local development against a remote cluster.
+  const API_BASE = '';
+
+  // ── State ───────────────────────────────────────────────────────────
+  let currentFilter = 'all';
+  let currentScreen = 'dashboard';
+
+  // ── Navigation ──────────────────────────────────────────────────────
+  const screenMeta = {
+    dashboard: { title: 'Dashboard',      subtitle: 'Overview of all expenses' },
+    expenses:  { title: 'All Expenses',   subtitle: 'Browse, filter, approve or reject' },
+    submit:    { title: 'Submit Expense', subtitle: 'New expense request' },
+  };
+
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.getElementById('nav-' + name).classList.add('active');
+    document.getElementById('topbar-title').textContent    = screenMeta[name].title;
+    document.getElementById('topbar-subtitle').textContent = screenMeta[name].subtitle;
+    currentScreen = name;
+    if (name === 'dashboard') loadDashboard();
+    if (name === 'expenses')  loadExpenses();
+  }
+
+  function refreshCurrent() {
+    if (currentScreen === 'dashboard') loadDashboard();
+    if (currentScreen === 'expenses')  loadExpenses();
+  }
+
+  // ── API ─────────────────────────────────────────────────────────────
+  async function apiFetch(path, opts = {}) {
+    const res = await fetch(API_BASE + path, {
+      headers: { 'Content-Type': 'application/json' },
+      ...opts,
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || body.message || 'HTTP ' + res.status);
+    }
+    return res.json();
+  }
+
+  // ── Dashboard ────────────────────────────────────────────────────────
+  async function loadDashboard() {
+    try {
+      const data     = await apiFetch('/expenses');
+      const expenses = Array.isArray(data) ? data : (data.expenses || []);
+      const pending  = expenses.filter(e => e.status === 'pending');
+      const approved = expenses.filter(e => e.status === 'approved');
+      const approvedAmt = approved.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+
+      setText('stat-total',           expenses.length);
+      setText('stat-pending',         pending.length);
+      setText('stat-approved-count',  approved.length);
+      setText('stat-approved-amount', 'AED ' + fmt(approvedAmt));
+
+      const recent    = [...expenses].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0,5);
+      const recentEl  = document.getElementById('dashboard-recent');
+
+      if (!recent.length) {
+        recentEl.innerHTML = '<div class="empty"><div class="empty-icon">&#128237;</div><div class="empty-label">No expenses yet</div><div class="empty-sub">Submit the first one to get started.</div></div>';
+        return;
+      }
+      recentEl.innerHTML = '<ul class="activity-list">' +
+        recent.map(e =>
+          '<li class="activity-item">' +
+            '<div>' +
+              '<div class="activity-desc">' + esc(e.submitter) + ' &mdash; ' + esc(e.category) + '</div>' +
+              '<div class="activity-meta">' + esc((e.description||'').slice(0,60)) + (e.description && e.description.length > 60 ? '&hellip;' : '') + '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:10px;align-items:center;flex-shrink:0">' +
+              '<span class="td-amount">AED ' + fmt(e.amount) + '</span>' +
+              '<span class="badge badge-' + e.status + '">' + e.status + '</span>' +
+            '</div>' +
+          '</li>'
+        ).join('') +
+      '</ul>';
+    } catch(err) {
+      toast('Could not load dashboard: ' + err.message, 'error');
+    }
+  }
+
+  // ── Expenses list ────────────────────────────────────────────────────
+  async function loadExpenses() {
+    const tbody = document.getElementById('expenses-tbody');
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="spinner"></div></div></td></tr>';
+    try {
+      const url      = currentFilter === 'all' ? '/expenses' : '/expenses?status=' + currentFilter;
+      const data     = await apiFetch(url);
+      const expenses = Array.isArray(data) ? data : (data.expenses || []);
+      renderTable(expenses);
+    } catch(err) {
+      tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">&#9888;&#65039;</div><div class="empty-label">Failed to load</div><div class="empty-sub">' + esc(err.message) + '</div></div></td></tr>';
+    }
+  }
+
+  function renderTable(expenses) {
+    const tbody = document.getElementById('expenses-tbody');
+    if (!expenses.length) {
+      tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-label">No expenses found</div><div class="empty-sub">' + (currentFilter !== 'all' ? 'Try a different filter.' : 'Submit the first expense.') + '</div></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = expenses.map(e =>
+      '<tr>' +
+        '<td class="td-mono">#' + e.id + '</td>' +
+        '<td>' + esc(e.submitter) + '</td>' +
+        '<td>' + esc(e.category) + '</td>' +
+        '<td class="td-amount">AED ' + fmt(e.amount) + '</td>' +
+        '<td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + esc(e.description||'') + '">' + esc(e.description||'—') + '</td>' +
+        '<td><span class="badge badge-' + e.status + '">' + e.status + '</span></td>' +
+        '<td class="td-mono">' + fmtDate(e.created_at) + '</td>' +
+        '<td>' +
+          (e.status === 'pending'
+            ? '<div class="actions-cell"><button class="btn btn-approve" onclick="action(' + e.id + ',\'approved\')">&#10003; Approve</button><button class="btn btn-reject" onclick="action(' + e.id + ',\'rejected\')">&#10005; Reject</button></div>'
+            : '<span style="font-size:12px;color:var(--text-3)">' + (e.status === 'approved' ? 'Approved' : 'Rejected') + '</span>') +
+        '</td>' +
+      '</tr>'
+    ).join('');
+  }
+
+  // ── Filter ───────────────────────────────────────────────────────────
+  function setFilter(f, btn) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadExpenses();
+  }
+
+  // ── Approve / Reject ─────────────────────────────────────────────────
+  async function action(id, status) {
+    const btn = document.querySelector('button[onclick="action(' + id + ',\'' + status + '\')"]');
+    if (btn) btn.disabled = true;
+    try {
+      await apiFetch('/expenses/' + id, { method: 'PATCH', body: JSON.stringify({ status }) });
+      toast('Expense #' + id + ' ' + status + '.', 'success');
+      loadExpenses();
+    } catch(err) {
+      if (btn) btn.disabled = false;
+      toast('Could not update #' + id + ': ' + err.message, 'error');
+    }
+  }
+
+  // ── Submit ───────────────────────────────────────────────────────────
+  async function submitExpense() {
+    const submitter   = document.getElementById('f-submitter').value.trim();
+    const amount      = document.getElementById('f-amount').value.trim();
+    const category    = document.getElementById('f-category').value;
+    const description = document.getElementById('f-description').value.trim();
+
+    if (!submitter || !amount || !category || !description) { toast('All fields are required.', 'error'); return; }
+    if (parseFloat(amount) <= 0) { toast('Amount must be greater than zero.', 'error'); return; }
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Submitting&hellip;';
+
+    try {
+      await apiFetch('/expenses', {
+        method: 'POST',
+        body:   JSON.stringify({ submitter, amount: parseFloat(amount), category, description }),
+      });
+      toast('Expense submitted — pending review.', 'success');
+      ['f-submitter','f-amount','f-description'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f-category').value = '';
+      showScreen('expenses');
+    } catch(err) {
+      toast('Submission failed: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Submit expense';
+    }
+  }
+
+  // ── Toasts ───────────────────────────────────────────────────────────
+  function toast(msg, type) {
+    type = type || 'success';
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.innerHTML = '<span>' + (type === 'success' ? '&#10003;' : '&#9888;') + '</span><span>' + esc(msg) + '</span>';
+    document.getElementById('toasts').appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+  function setText(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; }
+
+  function esc(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function fmt(n) {
+    return parseFloat(n||0).toLocaleString('en-AE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  }
+
+  function fmtDate(str) {
+    if (!str) return '—';
+    return new Date(str).toLocaleDateString('en-AE', { day:'2-digit', month:'short', year:'numeric' });
+  }
+
+  // ── Boot ─────────────────────────────────────────────────────────────
+  loadDashboard();
+</script>
+</body>
+</html>

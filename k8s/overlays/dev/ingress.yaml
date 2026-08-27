@@ -1,3 +1,10 @@
+# Replaces the existing devops-app-ingress.
+# Route:  /          → frontend (nginx, serves HTML + proxies API internally)
+#         /expenses  → kept here too so direct API access still works
+#                       (e.g. curl, Postman, Prometheus scrape via ingress)
+#
+# The frontend nginx also proxies /expenses internally, so browser traffic
+# never needs to hit the API through the ingress directly.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -6,15 +13,40 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
-  ingressClassName: traefik
   rules:
-  - host: 74.162.154.232.nip.io
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: devops-app-service
-            port:
-              number: 80
+    - host: 74.162.154.232.nip.io
+      http:
+        paths:
+          # Frontend — serves / and handles all browser navigation
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: devops-frontend-service
+                port:
+                  number: 80
+
+          # API — direct access for curl / Prometheus / external tools
+          - path: /expenses
+            pathType: Prefix
+            backend:
+              service:
+                name: devops-app-service
+                port:
+                  number: 80
+
+          - path: /health
+            pathType: Prefix
+            backend:
+              service:
+                name: devops-app-service
+                port:
+                  number: 80
+
+          - path: /metrics
+            pathType: Prefix
+            backend:
+              service:
+                name: devops-app-service
+                port:
+                  number: 80

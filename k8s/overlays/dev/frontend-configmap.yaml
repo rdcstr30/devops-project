@@ -1,0 +1,41 @@
+# nginx-conf ConfigMap — runs on port 8080 (non-root compatible)
+# proxies /expenses and /health to the Flask API so the frontend
+# can use relative paths with no CORS issues.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-nginx-conf
+  namespace: dev
+data:
+  default.conf: |
+    server {
+      listen 8080;
+      server_name _;
+
+      # Serve the static frontend
+      location / {
+        root /usr/share/nginx/html;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+      }
+
+      # Proxy API calls to the Flask backend
+      # Keeps everything on one origin — no CORS required
+      location /expenses {
+        proxy_pass         http://devops-app-service:80;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+      }
+
+      location /health {
+        proxy_pass         http://devops-app-service:80;
+        proxy_set_header   Host $host;
+      }
+
+      location /metrics {
+        proxy_pass         http://devops-app-service:80;
+        proxy_set_header   Host $host;
+      }
+    }
