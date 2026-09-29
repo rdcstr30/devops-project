@@ -52,7 +52,7 @@ spec:
             app: devops-app
       containers:
       - name: devops-app
-        image: rdcstr30/devops-app:94604a3edda2e4eafa5c7bb03df35415f3c6ab3e
+        image: devopsacr3ev7tx.azurecr.io/devops-app:fbb0b208512ed75714a4ea8028925ec600140811
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
