@@ -23,7 +23,7 @@ jobs:
 
       - name: Set image tag
         id: meta
-        run: echo "image_tag=${{ secrets.ACR_LOGIN_SERVER }}/devops-app:${{ github.sha }}" >> $GITHUB_OUTPUT
+        run: echo "image_tag=${{ vars.ACR_LOGIN_SERVER }}/devops-app:${{ github.sha }}" >> $GITHUB_OUTPUT
 
       - name: Login to Azure
         uses: azure/login@v1
@@ -37,13 +37,13 @@ jobs:
         run: |
           docker build \
             -t ${{ steps.meta.outputs.image_tag }} \
-            -t ${{ secrets.ACR_LOGIN_SERVER }}/devops-app:latest \
+            -t ${{ vars.ACR_LOGIN_SERVER }}/devops-app:latest \
             app/api/
 
       - name: Push image
         run: |
           docker push ${{ steps.meta.outputs.image_tag }}
-          docker push ${{ secrets.ACR_LOGIN_SERVER }}/devops-app:latest
+          docker push ${{ vars.ACR_LOGIN_SERVER }}/devops-app:latest
 
   update-manifests:
     runs-on: ubuntu-latest
