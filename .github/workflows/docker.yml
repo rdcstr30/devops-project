@@ -15,7 +15,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
-      image_tag: ${{ steps.meta.outputs.sha_tag }}
+      image_tag: ${{ steps.meta.outputs.image_tag }}
 
     steps:
       - name: Checkout
@@ -23,22 +23,27 @@ jobs:
 
       - name: Set image tag
         id: meta
-        run: echo "image_tag=${{ secrets.DOCKERHUB_USERNAME }}/devops-app:${{ github.sha }}" >> $GITHUB_OUTPUT
+        run: echo "image_tag=${{ secrets.ACR_LOGIN_SERVER }}/devops-app:${{ github.sha }}" >> $GITHUB_OUTPUT
 
-      - name: Login to DockerHub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Login to ACR
+        run: az acr login --name devopsacr3ev7tx
 
       - name: Build image
         run: |
           docker build \
             -t ${{ steps.meta.outputs.image_tag }} \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/devops-app:latest \
+            -t ${{ secrets.ACR_LOGIN_SERVER }}/devops-app:latest \
             app/api/
 
       - name: Push image
         run: |
           docker push ${{ steps.meta.outputs.image_tag }}
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-app:latest
+          docker push ${{ secrets.ACR_LOGIN_SERVER }}/devops-app:latest
 
   update-manifests:
     runs-on: ubuntu-latest
@@ -52,13 +57,13 @@ jobs:
 
       - name: Update image tag in dev manifest
         run: |
-          IMAGE_TAG="${{ secrets.DOCKERHUB_USERNAME }}/devops-app:${{ github.sha }}"
+          IMAGE_TAG="${{ needs.build-and-push.outputs.image_tag }}"
           echo "DEBUG: IMAGE_TAG='$IMAGE_TAG'"
           if [ -z "$IMAGE_TAG" ]; then
             echo "ERROR: image_tag is empty, aborting manifest update"
             exit 1
           fi
-          sed -i "s|image: rdcstr30/devops-app:.*|image: $IMAGE_TAG|g" \
+          sed -i "s|image: devopsacr3ev7tx.azurecr.io/devops-app:.*|image: $IMAGE_TAG|g" \
             k8s/overlays/dev/deployment.yaml
 
       - name: Commit updated manifest
