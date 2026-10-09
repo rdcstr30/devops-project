@@ -29,8 +29,6 @@ spec:
         runAsGroup: 101
         seccompProfile:
           type: RuntimeDefault
-      nodeSelector:
-        node-role: app
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

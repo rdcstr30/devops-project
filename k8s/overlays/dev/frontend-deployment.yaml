@@ -15,8 +15,6 @@ spec:
       labels:
         app: devops-frontend
     spec:
-      nodeSelector:
-        node-role: app
       securityContext:
         runAsNonRoot: true
         runAsUser: 101
