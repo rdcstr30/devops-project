@@ -44,7 +44,7 @@ spec:
       name: postgres-data
     spec:
       accessModes: ["ReadWriteOnce"]
-      storageClassName: local-path
+      storageClassName: managed-csi
       resources:
         requests:
           storage: 1Gi
