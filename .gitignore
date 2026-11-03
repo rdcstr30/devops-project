@@ -4,6 +4,9 @@ terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
 terraform/*.tfstate
 terraform/*.tfstate.*
+*.tfplan
+kubeseal.exe
+*.tar.gz
 
 # Terraform lock (optional)
 # terraform/.terraform.lock.hcl
